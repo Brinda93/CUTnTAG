@@ -1,3 +1,21 @@
+module load deeptools/3.5.1
+module load bedtools/2.31.0
+
+ 
+
+cat CT4_CKDL220002265-1a_HK55MDSX3_L2_peaks.narrowPeak CT5_CKDL220002266-1a_HK55MDSX3_L2_peaks.narrowPeak CT6_CKDL220002267-1a_HK55MDSX3_L2_peaks.narrowPeak | sort -k1,1 -k2,2n  | bedtools merge -i - > WT_E2_C4_merged_peaks.bed
+
+
+computeMatrix scale-regions     -R WT_K8_K13_merged_peaks.bed    -S ../Normalized_CPM/CT4_CKDL220002265-1a_HK55MDSX3_L2_CPM.bw ../Normalized_CPM/CT5_CKDL220002266-1a_HK55MDSX3_L2_CPM.bw ../Normalized_CPM/CT6_CKDL220002267-1a_HK55MDSX3_L2_CPM.bw -b 3000 -a 3000 --regionBodyLength 5000     --skipZeros     --numberOfProcessors 8     -o matrix_genes_TSS_TES_motl4.gz
+
+plotHeatmap -m matrix_genes_TSS_TES_motl4.gz    -out heatmap_TSS_to_TES_Molt4.png     --colorMap RdYlBu_r     --samplesLabel "WT" "C2" "E4"     --regionsLabel "Genes"     --plotTitle "Molt4"     --startLabel "TSS"     --endLabel "TES" 
+
+
+plotProfile -m matrix_genes_TSS_TES_motl4.gz  -out profile_WT_C2_E4.png     --plotTitle "Molt4"     --samplesLabel "WT" "C2" "E4"     --colors blue green red     --plotType se     --perGroup 
+
+or
+
+
 #!/bin/bash
 #SBATCH --job-name=deeptools_peaks
 #SBATCH --output=deeptools_peaks_%j.out
