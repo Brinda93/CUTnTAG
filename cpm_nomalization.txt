@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Set paths
+BAM_DIR="/gpfs/Labs/Dovat/Rloop_Jun2022/Rloop_Peaks_Feb2022/CUT_Tag_Jan_2022_CS/raw_files/CUTnTag_PE_output_final/Mapped"
+OUTPUT_DIR="/gpfs/Labs/Dovat/Rloop_Jun2022/Rloop_Peaks_Feb2022/CUT_Tag_Jan_2022_CS/raw_files/CUTnTag_PE_output_final/Mapped"
+THREADS=8
+
+# Create output directory
+mkdir -p ${OUTPUT_DIR}
+
+cd ${BAM_DIR}
+
+# Process each BAM file
+for BAM in *.bam; do
+    # Skip .bai files
+    if [[ $BAM == *.bai ]]; then
+        continue
+    fi
+    
+    # Get sample name (remove _sorted.bam)
+    SAMPLE=$(basename $BAM _sorted.bam)
+    
+    echo "=================================================="
+    echo "Processing: $SAMPLE"
+    echo "=================================================="
+    
+    # Create CPM-normalized BigWig
+    bamCoverage \
+        --bam ${BAM} \
+        --outFileName ${OUTPUT_DIR}/${SAMPLE}.bw \
+        --binSize 10 \
+        --normalizeUsing CPM \
+        --effectiveGenomeSize 2913022398 \
+        --extendReads \
+        --numberOfProcessors ${THREADS} \
+        2>&1 | tee ${OUTPUT_DIR}/${SAMPLE}_bamCoverage.log
+    
+    echo "Completed: ${SAMPLE}.bw"
+    echo ""
+done
+
+echo "All BigWig files created in: ${OUTPUT_DIR}"
